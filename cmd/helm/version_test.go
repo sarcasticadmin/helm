@@ -69,3 +69,29 @@ func TestVersion(t *testing.T) {
 		return newVersionCmd(c, out)
 	})
 }
+
+func TestVersionEmptyGit(t *testing.T) {
+	// Set helm version
+	version.Version = "v1.2.3"
+	// BuildMetadata is empty
+	version.BuildMetadata = ""
+	// GitCommit is empty
+	version.GitCommit = ""
+	// GitTreeState is empty
+	version.GitTreeState = ""
+
+	sver := regexp.QuoteMeta("1.2.3")
+
+	tests := []releaseCase{
+		{
+			name:     "client short empty git",
+			args:     []string{},
+			flags:    []string{"-c", "--short"},
+			expected: sver,
+		},
+	}
+	settings.TillerHost = "fake-localhost"
+	runReleaseCases(t, tests, func(c *helm.FakeClient, out io.Writer) *cobra.Command {
+		return newVersionCmd(c, out)
+	})
+}
